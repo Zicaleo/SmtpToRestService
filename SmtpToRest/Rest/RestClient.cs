@@ -3,6 +3,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 
 namespace SmtpToRest.Rest;
 
@@ -24,6 +26,20 @@ internal class RestClient : IRestClient
             return new(HttpStatusCode.NotFound);
 
         var client = _httpClientFactory.CreateClient(input.HttpClientName ?? _httpClientConfiguration.HttpClientName);
+
+        var handler = new HttpClientHandler();
+        if (input.HttpClientCertAuthCrt != null)
+        {
+            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+            handler.SslProtocols = SslProtocols.Tls13 | SslProtocols.Tls12;
+            if (input.HttpClientCertAuthPassword != null) {
+                handler.ClientCertificates.Add(new X509Certificate2(input.HttpClientCertAuthCrt, input.HttpClientCertAuthPassword));
+            } else {
+                handler.ClientCertificates.Add(new X509Certificate2(input.HttpClientCertAuthCrt));
+            }
+            client = new HttpClient(handler);       // TODO: seems no way to set handler on existing client
+        }
+
         client.BaseAddress = new(endpoint);
 
         if (!string.IsNullOrEmpty(input.ApiToken))

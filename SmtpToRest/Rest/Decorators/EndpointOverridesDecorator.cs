@@ -12,5 +12,7 @@ internal class EndpointOverridesDecorator : DecoratorBase, IRestInputDecorator
 		if (Enum.TryParse(mapping.CustomHttpMethod, true, out HttpMethod parsedHttpMethod))
 			restInput.HttpMethod = parsedHttpMethod;
 		restInput.Endpoint = mapping.CustomEndpoint ?? restInput.Endpoint;
+		restInput.HttpClientCertAuthCrt = mapping.CustomHttpClientCertAuthCrt ?? restInput.HttpClientCertAuthCrt;
+		restInput.HttpClientCertAuthPassword = mapping.CustomHttpClientCertAuthPassword ?? restInput.HttpClientCertAuthPassword;
 	}
 }
