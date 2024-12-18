@@ -10,5 +10,7 @@ public interface IMimeMessage
 
     string[]? FirstAddresses { get; }
 
+    string? SubjectAsString { get; }
+
     string? BodyAsString { get; }
 }
