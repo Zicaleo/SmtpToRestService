@@ -9,6 +9,7 @@ internal abstract class TokenReplacementDecoratorBase : DecoratorBase
 {
     private const string FromToken = "from";
     private const string ToToken = "to";
+    private const string SubjectToken = "subject";
     private const string BodyToken = "body";
 
     private static readonly Regex FromRegex = new(GetTokenPattern(FromToken), RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -20,6 +21,11 @@ internal abstract class TokenReplacementDecoratorBase : DecoratorBase
     private static readonly Regex ToStartIndexAndOptionalLengthRegex = new(GetStartIndexAndOptionalLengthPattern(ToToken), RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex ToIndexOfStringAndOptionalLengthRegex = new(GetIndexOfStringAndOptionalLengthPattern(ToToken), RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex ToIndexOfStringToIndexOfStringRegex = new(GetIndexOfStringToIndexOfStringPattern(ToToken), RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static readonly Regex SubjectRegex = new(GetTokenPattern(SubjectToken), RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex SubjectStartIndexAndOptionalLengthRegex = new(GetStartIndexAndOptionalLengthPattern(SubjectToken), RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex SubjectIndexOfStringAndOptionalLengthRegex = new(GetIndexOfStringAndOptionalLengthPattern(SubjectToken), RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex SubjectIndexOfStringToIndexOfStringRegex = new(GetIndexOfStringToIndexOfStringPattern(SubjectToken), RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex BodyRegex = new(GetTokenPattern(BodyToken), RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex BodyStartIndexAndOptionalLengthRegex = new(GetStartIndexAndOptionalLengthPattern(BodyToken), RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
@@ -117,6 +123,17 @@ internal abstract class TokenReplacementDecoratorBase : DecoratorBase
             to);
     }
 
+    private static string? ReplaceSubjectToken(string? input, string? subject)
+    {
+        return ReplaceToken(
+            SubjectStartIndexAndOptionalLengthRegex,
+            SubjectIndexOfStringToIndexOfStringRegex,
+            SubjectIndexOfStringAndOptionalLengthRegex,
+            SubjectRegex,
+            input,
+            subject);
+    }
+
     private static string? ReplaceBodyToken(string? input, string? body)
     {
         return ReplaceToken(
@@ -130,6 +147,6 @@ internal abstract class TokenReplacementDecoratorBase : DecoratorBase
 
     protected static string? ReplaceTokens(string? input, IMimeMessage message)
     {
-        return ReplaceFromToken(ReplaceToToken(ReplaceBodyToken(input, message.BodyAsString), message.FirstToAddress), message.FirstFromAddress);
+        return ReplaceFromToken(ReplaceToToken(ReplaceSubjectToken(ReplaceBodyToken(input, message.BodyAsString), message.SubjectAsString), message.FirstToAddress), message.FirstFromAddress);
     }
 }
