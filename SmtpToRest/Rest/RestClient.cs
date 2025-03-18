@@ -52,8 +52,9 @@ internal class RestClient : IRestClient
         switch (input.HttpMethod)
         {
 	        case HttpMethod.Post:
-		        string content = input.Content ?? string.Empty;
-		        return await client.PostAsync(uriBuilder.Uri, new StringContent(content), cancellationToken);
+		        var content = new StringContent(input.Content ?? string.Empty);
+                content.Headers.ContentType = new("application/json");
+		        return await client.PostAsync(uriBuilder.Uri, content, cancellationToken);
 			default:
                 return await client.SendAsync(new(input.HttpMethod.ToSystemNetHttpMethod(), uriBuilder.Uri), cancellationToken);
 		}
